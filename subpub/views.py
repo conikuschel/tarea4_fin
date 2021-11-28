@@ -17,5 +17,7 @@ def home(request):
 
 @api_view(['POST'])
 def recibir_transaccion(request):
-    print(request.data)
+    if request.method == "POST":
+        print(request.data)
+        print("llegoo")
     return Response(status=status.HTTP_200_OK)
