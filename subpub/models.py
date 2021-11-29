@@ -10,3 +10,4 @@ class Transaccion(models.Model):
     cuenta_destino = models.IntegerField()
     monto = models.IntegerField()
     message_id = models.CharField(max_length=100)
+    fecha = models.CharField(max_length=100)

@@ -20,6 +20,7 @@ def recibir_transaccion(request):
     if request.method == "POST":
         algo = request.data['message']
         message = algo['messageId']
+        fecha = algo['publishTime']
         try:
             Transaccion.objects.get(message_id = message)
         except Transaccion.DoesNotExist:
@@ -37,7 +38,7 @@ def recibir_transaccion(request):
                 monto = int(ver[48:64])
                 print(tipo,ide,ban_origen,cuen_origen, ban_dest,cuen_dest,monto)
                 transac = {"tipo": tipo, "id": ide, "banco_origen":ban_origen, "cuenta_origen": cuen_origen, 
-                    "banco_destino":ban_dest, "cuenta_destino":cuen_dest, "monto":monto, "message_id":message}
+                    "banco_destino":ban_dest, "cuenta_destino":cuen_dest, "monto":monto, "message_id":message, "fecha":fecha}
                 serializer = TransaccionSerializer(data=transac, many=False)
 
                 if serializer.is_valid():

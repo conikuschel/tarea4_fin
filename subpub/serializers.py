@@ -6,6 +6,7 @@ class TransaccionSerializer(serializers.ModelSerializer):
     class Meta:
         model=Transaccion
         fields=('id', 'tipo', 'banco_origen', 'cuenta_origen', 'banco_destino', 'cuenta_destino', 'monto', 'message_id',
+        'fecha',
         )
 
 
