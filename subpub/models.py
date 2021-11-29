@@ -11,3 +11,8 @@ class Transaccion(models.Model):
     monto = models.IntegerField()
     message_id = models.CharField(max_length=100)
     fecha = models.CharField(max_length=100)
+
+class Conciliacion(models.Model):
+   banco_origen = models.IntegerField() 
+   banco_destino = models.IntegerField()
+   monto = models.IntegerField()

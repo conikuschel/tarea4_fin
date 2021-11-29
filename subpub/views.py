@@ -5,15 +5,19 @@ import requests
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from subpub.serializers import TransaccionSerializer
-from subpub.models import Transaccion
+from subpub.serializers import TransaccionSerializer, ConciliacionSerializer
+from subpub.models import Transaccion, Conciliacion
 
 # Create your views here.
 
 def home(request):
     trans = Transaccion.objects.all().values()
     print(trans)
-    return render(request, 'home.html', {'response':trans})
+    transi = Conciliacion.objects.all().values()
+    lista=[]
+    lista.append(trans)
+    lista.append(transi)
+    return render(request, 'home.html', {'response':lista})
 
 @api_view(['POST'])
 def recibir_transaccion(request):
@@ -45,4 +49,43 @@ def recibir_transaccion(request):
                     serializer.save()
                 else:
                     print(serializer.errors)
+            try:
+                conci = Conciliacion.objects.get(banco_origen = ban_origen, banco_destino = ban_dest)
+                monti = conci.monto
+                if tipo == "2200":
+                    monti += monto
+                elif tipo == "2400":
+                    monti -= monto
+                conci.monto = monti
+                conci.save()
+            except Conciliacion.DoesNotExist:
+                try:
+                    conci = Conciliacion.objects.get(banco_destino = ban_origen, banco_origen = ban_dest)
+                    monti = conci.monto
+                    if tipo == "2200":
+                        monti -= monto
+                    elif tipo == "2400":
+                        monti += monto
+                    conci.monto = monti
+                    conci.save()
+                except Conciliacion.DoesNotExist:
+                    print(tipo)
+                    if tipo == "2200":
+                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"monto":monto}
+                        serializer = ConciliacionSerializer(data=transac, many=False)
+
+                        if serializer.is_valid():
+                            serializer.save()
+                        else:
+                            print(serializer.errors)
+                    elif tipo == "2400":
+                        monto = -monto
+                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"monto":monto}
+                        serializer = ConciliacionSerializer(data=transac, many=False)
+
+                        if serializer.is_valid():
+                            serializer.save()
+                        else:
+                            print(serializer.errors)
+
     return Response(status=status.HTTP_200_OK)
