@@ -12,7 +12,6 @@ from subpub.models import Transaccion, Conciliacion
 
 def home(request):
     trans = Transaccion.objects.all().values()
-    print(trans)
     transi = Conciliacion.objects.all().values()
     lista=[]
     lista.append(trans)
