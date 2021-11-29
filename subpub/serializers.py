@@ -11,7 +11,7 @@ class TransaccionSerializer(serializers.ModelSerializer):
 class ConciliacionSerializer(serializers.ModelSerializer):
     class Meta:
         model=Conciliacion
-        fields=('banco_origen', 'banco_destino', 'monto',
+        fields=('banco_origen', 'banco_destino', 'montos',
         )
 
 

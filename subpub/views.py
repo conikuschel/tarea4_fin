@@ -61,17 +61,17 @@ def recibir_transaccion(request):
             except Conciliacion.DoesNotExist:
                 try:
                     conci = Conciliacion.objects.get(banco_destino = ban_origen, banco_origen = ban_dest)
-                    monti = conci.monto
+                    monti = conci.montos
                     if tipo == "2200":
                         monti -= monto
                     elif tipo == "2400":
                         monti += monto
-                    conci.monto = monti
+                    conci.montos = monti
                     conci.save()
                 except Conciliacion.DoesNotExist:
                     print(tipo)
                     if tipo == "2200":
-                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"monto":monto}
+                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"montos":monto}
                         serializer = ConciliacionSerializer(data=transac, many=False)
 
                         if serializer.is_valid():
@@ -79,8 +79,10 @@ def recibir_transaccion(request):
                         else:
                             print(serializer.errors)
                     elif tipo == "2400":
+                        print("entro")
                         monto = -monto
-                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"monto":monto}
+                        print(monto)
+                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"montos":monto}
                         serializer = ConciliacionSerializer(data=transac, many=False)
 
                         if serializer.is_valid():

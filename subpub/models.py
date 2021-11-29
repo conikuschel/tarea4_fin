@@ -15,4 +15,4 @@ class Transaccion(models.Model):
 class Conciliacion(models.Model):
    banco_origen = models.IntegerField() 
    banco_destino = models.IntegerField()
-   monto = models.IntegerField()
+   montos = models.IntegerField()
