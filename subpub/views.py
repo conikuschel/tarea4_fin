@@ -39,7 +39,6 @@ def recibir_transaccion(request):
                 ban_dest = int(ver[31:38])
                 cuen_dest = int(ver[38:48])
                 monto = int(ver[48:64])
-                print(tipo,ide,ban_origen,cuen_origen, ban_dest,cuen_dest,monto)
                 transac = {"tipo": tipo, "id": ide, "banco_origen":ban_origen, "cuenta_origen": cuen_origen, 
                     "banco_destino":ban_dest, "cuenta_destino":cuen_dest, "monto":monto, "message_id":message, "fecha":fecha}
                 serializer = TransaccionSerializer(data=transac, many=False)
@@ -48,45 +47,43 @@ def recibir_transaccion(request):
                     serializer.save()
                 else:
                     print(serializer.errors)
-            try:
-                conci = Conciliacion.objects.get(banco_origen = ban_origen, banco_destino = ban_dest)
-                monti = conci.monto
-                if tipo == "2200":
-                    monti += monto
-                elif tipo == "2400":
-                    monti -= monto
-                conci.monto = monti
-                conci.save()
-            except Conciliacion.DoesNotExist:
+            if ban_origen != ban_dest:
                 try:
-                    conci = Conciliacion.objects.get(banco_destino = ban_origen, banco_origen = ban_dest)
+                    conci = Conciliacion.objects.get(banco_origen = ban_origen, banco_destino = ban_dest)
                     monti = conci.montos
                     if tipo == "2200":
-                        monti -= monto
-                    elif tipo == "2400":
                         monti += monto
+                    elif tipo == "2400":
+                        monti -= monto
                     conci.montos = monti
                     conci.save()
                 except Conciliacion.DoesNotExist:
-                    print(tipo)
-                    if tipo == "2200":
-                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"montos":monto}
-                        serializer = ConciliacionSerializer(data=transac, many=False)
+                    try:
+                        conci = Conciliacion.objects.get(banco_destino = ban_origen, banco_origen = ban_dest)
+                        monti = conci.montos
+                        if tipo == "2200":
+                            monti -= monto
+                        elif tipo == "2400":
+                            monti += monto
+                        conci.montos = monti
+                        conci.save()
+                    except Conciliacion.DoesNotExist:
+                        if tipo == "2200":
+                            transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"montos":monto}
+                            serializer = ConciliacionSerializer(data=transac, many=False)
 
-                        if serializer.is_valid():
-                            serializer.save()
-                        else:
-                            print(serializer.errors)
-                    elif tipo == "2400":
-                        print("entro")
-                        monto = -monto
-                        print(monto)
-                        transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"montos":monto}
-                        serializer = ConciliacionSerializer(data=transac, many=False)
+                            if serializer.is_valid():
+                                serializer.save()
+                            else:
+                                print(serializer.errors)
+                        elif tipo == "2400":
+                            monto = -monto
+                            transac = {"banco_origen":ban_origen,"banco_destino":ban_dest,"montos":monto}
+                            serializer = ConciliacionSerializer(data=transac, many=False)
 
-                        if serializer.is_valid():
-                            serializer.save()
-                        else:
-                            print(serializer.errors)
+                            if serializer.is_valid():
+                                serializer.save()
+                            else:
+                                print(serializer.errors)
 
     return Response(status=status.HTTP_200_OK)
